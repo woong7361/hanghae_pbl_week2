@@ -1,0 +1,38 @@
+spring:
+  datasource:
+    url: jdbc:h2:tcp://localhost/~/week2
+    username: sa
+    password:
+    driver-class-name: org.h2.Driver
+
+#    url: jdbc:mysql://springboot-db.cxwbtxacq4p8.ap-northeast-2.rds.amazonaws.com:3306/myselectshop
+  #    username: woong7361
+  #    password: dlgusdnd5
+#    driver-class-name: com.mysql.cj.jdbc.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: create
+    properties:
+      hibernate:
+        format_sql: true
+        # !!!!!!!배치 사이즈 글로벌 옵션!!!!!!!!!!
+#        default_batch_fetch_size: 100
+
+#
+#logging.level:
+#  org.hibernate.SQL: debug
+#  org.springframework.transaction.interceptor: trace
+
+#logging:
+#  level:
+#    org.springframework.orm.jpa: DEBUG
+#    org.springframework.transaction: DEBUG
+#log4j.logger.org.springframework.transaction.interceptor: trace
+# org.hibernate.type: trace
+logging:
+  exception-conversion-word: '%wEx'
+  pattern:
+    console: '%d{yyyy-MM-dd HH:mm:ss.SSS} %clr(${LOG_LEVEL_PATTERN:-%5p}){green} %clr([%22thread]){magenta} %clr(%-40.40logger{39}){cyan} %clr(: %m%n${LOG_EXCEPTION_CONVERSION_WORD:-%wEx}){faint}'
+  level:
+    web: debug
