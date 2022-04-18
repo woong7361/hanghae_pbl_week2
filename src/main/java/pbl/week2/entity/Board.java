@@ -3,6 +3,7 @@ package pbl.week2.entity;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import pbl.week2.entity.entityDto.BoardDto;
 import pbl.week2.entity.timeSuper.TimeStamped;
 
 import javax.persistence.*;
@@ -41,5 +42,12 @@ public class Board extends TimeStamped {
         Board board = new Board(content, picture, member);
         board.member.getBoards().add(board);
         return board;
+    }
+
+    //=========================비즈니스 로직===============================//
+
+    public void patch(BoardDto.CreateReq patchReq) {
+        this.content = patchReq.getContent();
+        this.picture = patchReq.getPicture();
     }
 }

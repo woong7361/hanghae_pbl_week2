@@ -5,19 +5,24 @@ import com.auth0.jwt.algorithms.Algorithm;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.DisabledException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.util.StringUtils;
+import pbl.week2.entity.dto.ResultMsg;
 import pbl.week2.entity.entityDto.MemberDto;
 import pbl.week2.security.PrincipalDetails;
+import pbl.week2.security.jwt.JwtTokenUtils;
 
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.util.Date;
 
 import static pbl.week2.security.jwt.JwtTokenUtils.*;
@@ -29,7 +34,7 @@ import static pbl.week2.security.jwt.JwtTokenUtils.*;
 @Slf4j
 public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilter {
 
-//    private AuthenticationManager authenticationManager;
+    private AuthenticationManager authenticationManager;
 
     public JwtAuthenticationFilter(AuthenticationManager authenticationManager) {
         super.setAuthenticationManager(authenticationManager);
@@ -42,6 +47,19 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
     @Override
     public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response) throws AuthenticationException {
         System.out.println("JWT AuthenticationFilter: 로그인 시도중");
+
+
+        String jwtHeader = request.getHeader(TOKEN_HEADER_NAME);
+        if (jwtHeader != null && jwtHeader.startsWith(TOKEN_NAME_WITH_SPACE)) {
+            String jwtToken = getTokenFromHeader(request);
+            String username = JwtTokenUtils.verifyToken(jwtToken)
+                    .getClaim(CLAIM_USERNAME)
+                    .asString();
+            if (StringUtils.hasText(username)) {
+                throw new DisabledException("이미 로그인되어있는 유저입니다.");
+            }
+        }
+
         //1 get username, password
         try {
             ObjectMapper om = new ObjectMapper();
@@ -49,7 +67,7 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
 
             if (!StringUtils.hasText(member.getUsername()) || !StringUtils.hasText(member.getPassword())) {
                 log.info("아이디 혹은 비밀번호가 비어있습니다. {}", member);
-                throw new IllegalArgumentException("아이디 혹은 비밀번호가 비어있습니다.");
+                throw new BadCredentialsException("아이디 혹은 비밀번호가 비어있습니다.");
             }
 
             UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken =
@@ -62,34 +80,43 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
 
             //return시 authentication객체가 session에 저장된다.
             // -> 세션에 저장하는 이유는 권한관리를 시큐리티가 해주기 때문
-
             return authentication;
 
         } catch (IOException e) {
             log.info("입력 오류");
-
-//            request.setAttribute("error", e);
             throw new RuntimeException(e);
         }
-
     }
+
     //attemptAuthentication실행 후 인증이 정상적으로 되었으면 successfulAuthentication 실행된다
     //JWT토큰을 만들어서 response해주면 된다
-
     @Override
     protected void successfulAuthentication(HttpServletRequest request, HttpServletResponse response, FilterChain chain,
                                             Authentication authResult) throws IOException, ServletException {
         PrincipalDetails principal = (PrincipalDetails) authResult.getPrincipal();
 
-
         //token에 id와 username 추가
         String jwtToken = JWT.create()
                 .withSubject("sub")
                 .withExpiresAt(new Date(System.currentTimeMillis() + (2 * HOUR) ))
-                .withClaim(CLAIM_ID, principal.getId())
+                .withClaim(CLAIM_ID, principal.getMemberSession().getId())
                 .withClaim(CLAIM_USERNAME, principal.getUsername())
                 .sign(Algorithm.HMAC512(JWT_SECRET));   //secretkey
 
         response.addHeader(TOKEN_HEADER_NAME, TOKEN_NAME_WITH_SPACE + jwtToken);
+
+        //response Body Msg추가
+        ResultMsg error = new ResultMsg("success");
+        try (OutputStream os = response.getOutputStream()) {
+            ObjectMapper objectMapper = new ObjectMapper();
+            objectMapper.writeValue(os, error);
+            os.flush();
+        }
     }
+
+    @Override
+    protected void unsuccessfulAuthentication(HttpServletRequest request, HttpServletResponse response, AuthenticationException failed) throws IOException, ServletException {
+        super.unsuccessfulAuthentication(request, response, failed);
+    }
+
 }

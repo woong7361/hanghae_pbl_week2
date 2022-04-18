@@ -30,9 +30,13 @@ spring:
 #    org.springframework.transaction: DEBUG
 #log4j.logger.org.springframework.transaction.interceptor: trace
 # org.hibernate.type: trace
+
+
 logging:
   exception-conversion-word: '%wEx'
   pattern:
     console: '%d{yyyy-MM-dd HH:mm:ss.SSS} %clr(${LOG_LEVEL_PATTERN:-%5p}){green} %clr([%22thread]){magenta} %clr(%-40.40logger{39}){cyan} %clr(: %m%n${LOG_EXCEPTION_CONVERSION_WORD:-%wEx}){faint}'
   level:
+#    root: debug
     web: debug
+

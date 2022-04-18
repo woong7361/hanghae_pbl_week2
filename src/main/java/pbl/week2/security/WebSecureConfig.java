@@ -9,7 +9,9 @@ import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.web.authentication.Http403ForbiddenEntryPoint;
 import pbl.week2.repository.MemberRepository;
+import pbl.week2.security.exceptionhandler.AuthenticationFailureHandlerImpl;
 import pbl.week2.security.exceptionhandler.CustomAccessDeniedHandler;
 import pbl.week2.security.exceptionhandler.CustomAuthenticationEntryPoint;
 import pbl.week2.security.filter.JwtAuthenticationFilter;
@@ -21,6 +23,8 @@ import pbl.week2.security.filter.JwtAuthorizationFilter;
 public class WebSecureConfig extends WebSecurityConfigurerAdapter {
 
     private final MemberRepository memberRepository;
+    private final CustomAuthenticationEntryPoint authenticationEntryPoint;
+    private final AuthenticationFailureHandlerImpl authenticationFailureHandler;
 
     //이걸로 안막으면 인증이 필요없는 부분도 필터를 탐 (forbidden으로 막히지는 않음)
     @Override
@@ -32,18 +36,16 @@ public class WebSecureConfig extends WebSecurityConfigurerAdapter {
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
-        http.cors().and().csrf().disable();
-
-        http
+        http.cors().and().csrf().disable()
                 .exceptionHandling()
-                .authenticationEntryPoint(new CustomAuthenticationEntryPoint())
+                .authenticationEntryPoint(authenticationEntryPoint)
                 .accessDeniedHandler(new CustomAccessDeniedHandler());
 
         http.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 .and()
                 .formLogin().disable() //form으로 로그인 안함
                 .httpBasic().disable() //http basic 방식 사용 안함
-                .addFilter(new JwtAuthenticationFilter(authenticationManager()))// authentication manager를 파라미터로 넘겨주어야 한다
+                .addFilter(jwtAuthenticationFilter(authenticationManager()))// authentication manager를 파라미터로 넘겨주어야 한다
                 .addFilter(new JwtAuthorizationFilter(authenticationManager(), memberRepository))
                 .authorizeRequests()
                 .antMatchers("/api/**").authenticated()
@@ -59,11 +61,10 @@ public class WebSecureConfig extends WebSecurityConfigurerAdapter {
 
     }
 
-//    @Bean
-//    public JwtAuthenticationFilter jwtAuthenticationFilter() throws Exception {
-//        JwtAuthenticationFilter jwtAuthenticationFilter = new JwtAuthenticationFilter(super.authenticationManagerBean());
-//        jwtAuthenticationFilter.setFilterProcessesUrl("/api/login");
-//        return jwtAuthenticationFilter;
-//    }
+    public JwtAuthenticationFilter jwtAuthenticationFilter(AuthenticationManager authenticationManager) throws Exception {
+        JwtAuthenticationFilter jwtAuthenticationFilter = new JwtAuthenticationFilter(authenticationManager);
+        jwtAuthenticationFilter.setAuthenticationFailureHandler(authenticationFailureHandler);
+        return jwtAuthenticationFilter;
+    }
 
 }

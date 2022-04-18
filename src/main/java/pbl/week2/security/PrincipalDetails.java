@@ -5,22 +5,21 @@ import lombok.Setter;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import pbl.week2.entity.Member;
+import pbl.week2.entity.entityDto.MemberDto;
 
 import java.util.ArrayList;
 import java.util.Collection;
 
-@Getter
 @Setter
+@Getter
 public class PrincipalDetails implements UserDetails {
-    private Long id;
-    private String username;
-    private String password;
+    private MemberDto.Session memberSession;
 
     public PrincipalDetails(Long id, String username, String password) {
-        this.id = id;
-        this.username = username;
-        this.password = password;
+        this.memberSession = new MemberDto.Session(id, username, password);
+
     }
+
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
@@ -35,12 +34,12 @@ public class PrincipalDetails implements UserDetails {
 
     @Override
     public String getPassword() {
-        return this.password;
+        return this.memberSession.getPassword();
     }
 
     @Override
     public String getUsername() {
-        return this.username;
+        return this.memberSession.getUsername();
     }
 
     @Override

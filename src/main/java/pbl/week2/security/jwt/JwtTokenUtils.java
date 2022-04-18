@@ -2,8 +2,10 @@ package pbl.week2.security.jwt;
 
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
+import com.auth0.jwt.interfaces.DecodedJWT;
 import pbl.week2.entity.Member;
 
+import javax.servlet.http.HttpServletRequest;
 import java.util.Date;
 
 public final class JwtTokenUtils {
@@ -15,26 +17,37 @@ public final class JwtTokenUtils {
 
     public static final String TOKEN_HEADER_NAME = "Authorization";
     public static final String TOKEN_NAME_WITH_SPACE = "Bearer ";
-    public static final String CLAIM_EXPIRED_DATE = "EXPIRED_DATE";
-    public static final String CLAIM_USER_NAME = "USER_NAME";
     public static final String JWT_SECRET = "jwt_secret_!@#$%";
     public static final String CLAIM_USERNAME = "username";
     public static final String CLAIM_ID = "id";
 
-    public static String generateJwtToken(Member member) {
-        String token = null;
-        try {
-            token = JWT.create()
-                    .withIssuer("sparta")
-                    .withClaim(CLAIM_USER_NAME, member.getUsername())
-                     // 토큰 만료 일시 = 현재 시간 + 토큰 유효기간)
-                    .withClaim(CLAIM_EXPIRED_DATE, new Date(System.currentTimeMillis() + HOUR*2))
-                    .sign(generateAlgorithm());
-        } catch (Exception e) {
-            System.out.println(e.getMessage());
-        }
+//    public static String generateJwtToken(Member member) {
+//        String token = null;
+//        try {
+//            token = JWT.create()
+//                    .withIssuer("sparta")
+//                    .withClaim(CLAIM_USER_NAME, member.getUsername())
+//                     // 토큰 만료 일시 = 현재 시간 + 토큰 유효기간)
+//                    .withClaim(CLAIM_EXPIRED_DATE, new Date(System.currentTimeMillis() + HOUR*2))
+//                    .sign(generateAlgorithm());
+//        } catch (Exception e) {
+//            System.out.println(e.getMessage());
+//        }
+//
+//        return token;
+//    }
 
-        return token;
+    public static DecodedJWT verifyToken(String jwtToken) {
+        return JWT
+                .require(Algorithm.HMAC512(JWT_SECRET))
+                .build()
+                .verify(jwtToken);
+    }
+
+    public static String getTokenFromHeader(HttpServletRequest request) {
+        return request.
+                getHeader(TOKEN_HEADER_NAME).
+                replace(TOKEN_NAME_WITH_SPACE, "");
     }
 
     private static Algorithm generateAlgorithm() {

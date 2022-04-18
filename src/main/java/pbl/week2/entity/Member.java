@@ -3,6 +3,8 @@ package pbl.week2.entity;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import pbl.week2.entity.entityDto.MemberDto;
+import pbl.week2.entity.timeSuper.TimeStamped;
 
 import javax.persistence.*;
 import java.util.ArrayList;
@@ -10,7 +12,7 @@ import java.util.List;
 
 @Entity @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class Member {
+public class Member extends TimeStamped {
 
     @Id @GeneratedValue
     @Column(name = "member_id")
@@ -37,4 +39,9 @@ public class Member {
     public static Member createMember(String username, String pw, String nickname) {
         return new Member(username, pw, nickname);
     }
+
+    public static Member createMemberByRegister(MemberDto.Register reg) {
+        return new Member(reg.getUsername(), reg.getPw(), reg.getNickname());
+    }
+
 }

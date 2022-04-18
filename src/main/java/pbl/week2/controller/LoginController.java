@@ -4,15 +4,16 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.util.MultiValueMap;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import pbl.week2.entity.dto.ResultMsg;
 import pbl.week2.entity.entityDto.MemberDto;
+import pbl.week2.security.PrincipalDetails;
+import pbl.week2.security.jwt.JwtTokenUtils;
 import pbl.week2.service.MemberService;
 
+import javax.validation.Valid;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -27,7 +28,7 @@ public class LoginController {
      * /api/register
      */
     @PostMapping("/api/register")
-    public ResultMsg register(@RequestBody MemberDto.Register registerDto) {
+    public ResultMsg register(@RequestBody @Valid MemberDto.Register registerDto) {
         memberService.register(registerDto);
         //MessageSoruce refactoring
 
@@ -35,19 +36,23 @@ public class LoginController {
     }
 
     /**
-     * 로그인 API
-     * /api/login
+     * 로그아웃 API
+     * /api/register
      */
-//    @PostMapping("/api/login")
-    public ResponseEntity<String> login(@RequestBody MemberDto.Login loginDto) {
-        HttpHeaders header = memberService.login(loginDto);
+    @PostMapping("/api/logout")
+    public String logout(@RequestHeader(value="Authorization")String authorization) {
+        return "깡통";
 
-        return new ResponseEntity<>("success", header, HttpStatus.OK);
     }
 
-    @GetMapping("/test")
-    public String test() {
 
+
+
+    /**
+     * Test API
+     */
+    @GetMapping("/test")
+    public String test(@AuthenticationPrincipal PrincipalDetails principalDetails) {
         return "test";
     }
 
