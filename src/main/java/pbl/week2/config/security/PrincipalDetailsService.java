@@ -1,4 +1,4 @@
-package pbl.week2.security;
+package pbl.week2.config.security;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetails;

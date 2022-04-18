@@ -1,4 +1,4 @@
-package pbl.week2.security.exceptionhandler;
+package pbl.week2.config.security.exceptionhandler;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;

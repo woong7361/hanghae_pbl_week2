@@ -1,23 +1,15 @@
-package pbl.week2.security.filter;
+package pbl.week2.config.security.filter;
 
 
-import com.auth0.jwt.JWT;
-import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.security.access.AccessDeniedException;
-import org.springframework.security.access.AuthorizationServiceException;
 import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
-import org.springframework.util.StringUtils;
-import pbl.week2.entity.Member;
+import pbl.week2.config.security.PrincipalDetails;
 import pbl.week2.repository.MemberRepository;
-import pbl.week2.security.PrincipalDetails;
-import pbl.week2.security.jwt.JwtTokenUtils;
 
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
@@ -25,7 +17,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
-import static pbl.week2.security.jwt.JwtTokenUtils.*;
+import static pbl.week2.config.security.jwt.JwtTokenUtils.*;
 
 //시큐리티 필터중 BasicAuthenticationFilter가 있다
 //권한이나 인증이 필요한 특정 주소를 입력했을 때 위 필터를 무조건 탄다

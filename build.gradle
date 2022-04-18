@@ -31,11 +31,15 @@ dependencies {
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testImplementation 'org.springframework.security:spring-security-test'
 
+    //jwt token
     implementation 'io.jsonwebtoken:jjwt-api:0.11.2'
     implementation 'commons-codec:commons-codec:1.5'
     runtimeOnly 'io.jsonwebtoken:jjwt-impl:0.11.2'
     runtimeOnly 'io.jsonwebtoken:jjwt-jackson:0.11.2'
     compileOnly 'com.auth0:java-jwt:3.13.0'
+
+    //multipart Request ???version check -> toByteArray is not defined???
+    implementation 'commons-io:commons-io:2.5'
 }
 
 tasks.named('test') {

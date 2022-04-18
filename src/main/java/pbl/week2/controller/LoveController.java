@@ -4,7 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import pbl.week2.entity.dto.ResultMsg;
-import pbl.week2.security.PrincipalDetails;
+import pbl.week2.config.security.PrincipalDetails;
 import pbl.week2.service.LoveService;
 
 @RestController

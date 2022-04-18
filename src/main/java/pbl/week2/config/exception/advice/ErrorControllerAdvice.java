@@ -1,4 +1,4 @@
-package pbl.week2.exception.advice;
+package pbl.week2.config.exception.advice;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.AccessDeniedException;

@@ -15,5 +15,5 @@ public interface LoveRepository extends JpaRepository<Love, Long> {
     List<Love> findByMemberId(@Param("memberId") Long memberId);
 
     @Query("select l from Love l where l.member.id = :memberId and l.board.id = :boardId")
-    Optional<Love> isLoveByMember(@Param("memberId") Long memberId, @Param("BoardId") Long boardId);
+    Optional<Love> isLoveByMember(@Param("memberId") Long memberId, @Param("boardId") Long boardId);
 }

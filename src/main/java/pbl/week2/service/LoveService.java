@@ -21,6 +21,7 @@ public class LoveService {
     private final MemberRepository memberRepository;
     private final BoardRepository boardRepository;
 
+    @Transactional
     public void createLove(Long boardId, Long memberId) {
         Board board = boardRepository.findById(boardId).orElseThrow(() -> new IllegalArgumentException("not exist Board"));
         Member member = memberRepository.findById(memberId).orElseThrow(() -> new IllegalArgumentException("not exist member"));
@@ -32,6 +33,7 @@ public class LoveService {
                 );
     }
 
+    @Transactional
     public void deleteLove(Long boardId, Long memberId) {
         Board board = boardRepository.findById(boardId).orElseThrow(() -> new IllegalArgumentException("not exist Board"));
         Member member = memberRepository.findById(memberId).orElseThrow(() -> new IllegalArgumentException("not exist member"));

@@ -4,7 +4,6 @@ spring:
     username: sa
     password:
     driver-class-name: org.h2.Driver
-
 #    url: jdbc:mysql://springboot-db.cxwbtxacq4p8.ap-northeast-2.rds.amazonaws.com:3306/myselectshop
   #    username: woong7361
   #    password: dlgusdnd5
@@ -18,18 +17,15 @@ spring:
         format_sql: true
         # !!!!!!!배치 사이즈 글로벌 옵션!!!!!!!!!!
 #        default_batch_fetch_size: 100
+  # multipart config
 
-#
-#logging.level:
-#  org.hibernate.SQL: debug
-#  org.springframework.transaction.interceptor: trace
+  servlet.multipart:
+    maxFileSize: 10MB
+    maxRequestSize: 20MB
 
-#logging:
-#  level:
-#    org.springframework.orm.jpa: DEBUG
-#    org.springframework.transaction: DEBUG
-#log4j.logger.org.springframework.transaction.interceptor: trace
-# org.hibernate.type: trace
+server:
+  tomcat:
+    basedir: /home/woong/code/sparata/temp
 
 
 logging:
@@ -39,4 +35,3 @@ logging:
   level:
 #    root: debug
     web: debug
-

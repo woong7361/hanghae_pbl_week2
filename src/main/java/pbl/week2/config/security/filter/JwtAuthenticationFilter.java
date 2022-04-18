@@ -1,4 +1,4 @@
-package pbl.week2.security.filter;
+package pbl.week2.config.security.filter;
 
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
@@ -12,10 +12,10 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.util.StringUtils;
+import pbl.week2.config.security.PrincipalDetails;
 import pbl.week2.entity.dto.ResultMsg;
 import pbl.week2.entity.entityDto.MemberDto;
-import pbl.week2.security.PrincipalDetails;
-import pbl.week2.security.jwt.JwtTokenUtils;
+import pbl.week2.config.security.jwt.JwtTokenUtils;
 
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
@@ -25,7 +25,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.util.Date;
 
-import static pbl.week2.security.jwt.JwtTokenUtils.*;
+import static pbl.week2.config.security.jwt.JwtTokenUtils.*;
 
 
 //스프링 시큐리티에서 UsernamePasswordAuthenticationFilter가 있음 - 로그인에 관련된 처리를 하는 필터이다.

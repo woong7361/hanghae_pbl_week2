@@ -1,4 +1,4 @@
-package pbl.week2.security;
+package pbl.week2.config.security;
 
 import lombok.Getter;
 import lombok.Setter;

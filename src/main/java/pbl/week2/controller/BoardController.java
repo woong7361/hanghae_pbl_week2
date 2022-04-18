@@ -1,12 +1,11 @@
 package pbl.week2.controller;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import pbl.week2.entity.dto.ResultMsg;
 import pbl.week2.entity.entityDto.BoardDto;
-import pbl.week2.security.PrincipalDetails;
+import pbl.week2.config.security.PrincipalDetails;
 import pbl.week2.service.BoardService;
 
 import javax.validation.Valid;

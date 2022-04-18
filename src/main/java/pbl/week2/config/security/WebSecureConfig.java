@@ -1,21 +1,19 @@
-package pbl.week2.security;
+package pbl.week2.config.security;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Configurable;
-import org.springframework.context.annotation.Bean;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.web.authentication.Http403ForbiddenEntryPoint;
+import pbl.week2.config.security.exceptionhandler.CustomAuthenticationEntryPoint;
+import pbl.week2.config.security.filter.JwtAuthenticationFilter;
+import pbl.week2.config.security.filter.JwtAuthorizationFilter;
 import pbl.week2.repository.MemberRepository;
-import pbl.week2.security.exceptionhandler.AuthenticationFailureHandlerImpl;
-import pbl.week2.security.exceptionhandler.CustomAccessDeniedHandler;
-import pbl.week2.security.exceptionhandler.CustomAuthenticationEntryPoint;
-import pbl.week2.security.filter.JwtAuthenticationFilter;
-import pbl.week2.security.filter.JwtAuthorizationFilter;
+import pbl.week2.config.security.exceptionhandler.AuthenticationFailureHandlerImpl;
+import pbl.week2.config.security.exceptionhandler.CustomAccessDeniedHandler;
 
 @EnableWebSecurity
 @Configurable

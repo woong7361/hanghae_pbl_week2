@@ -1,7 +1,5 @@
 package pbl.week2.service;
 
-import com.auth0.jwt.JWT;
-import com.auth0.jwt.algorithms.Algorithm;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -10,12 +8,6 @@ import org.springframework.transaction.annotation.Transactional;
 import pbl.week2.entity.Member;
 import pbl.week2.entity.entityDto.MemberDto;
 import pbl.week2.repository.MemberRepository;
-import pbl.week2.security.jwt.JwtTokenUtils;
-
-import java.util.Date;
-
-import static pbl.week2.security.jwt.JwtTokenUtils.JWT_SECRET;
-import static pbl.week2.security.jwt.JwtTokenUtils.TOKEN_NAME_WITH_SPACE;
 
 
 @Service
