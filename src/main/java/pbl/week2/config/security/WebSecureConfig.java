@@ -44,8 +44,9 @@ public class WebSecureConfig extends WebSecurityConfigurerAdapter {
                 .formLogin().disable() //form으로 로그인 안함
                 .httpBasic().disable() //http basic 방식 사용 안함
                 .addFilter(jwtAuthenticationFilter(authenticationManager()))// authentication manager를 파라미터로 넘겨주어야 한다
-                .addFilter(new JwtAuthorizationFilter(authenticationManager(), memberRepository))
+                .addFilter(new JwtAuthorizationFilter(authenticationManager(), authenticationEntryPoint, memberRepository))
                 .authorizeRequests()
+                .antMatchers("/api/posts").permitAll()
                 .antMatchers("/api/**").authenticated()
                 .anyRequest().permitAll();
 

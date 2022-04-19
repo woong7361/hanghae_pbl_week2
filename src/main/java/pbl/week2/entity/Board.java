@@ -46,8 +46,16 @@ public class Board extends TimeStamped {
 
     //=========================비즈니스 로직===============================//
 
-    public void patch(BoardDto.CreateReq patchReq) {
-        this.content = patchReq.getContent();
-        this.picture = patchReq.getPicture();
+    public void patch(String content, String filePath) {
+        this.content = content;
+        this.picture = filePath;
+    }
+
+    public void upLove() {
+        this.likeCount += 1;
+    }
+
+    public void downLove() {
+        this.likeCount -= 1;
     }
 }

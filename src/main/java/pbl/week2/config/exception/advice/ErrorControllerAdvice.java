@@ -35,8 +35,8 @@ public class ErrorControllerAdvice {
         return "IllegalArgumentException";
     }
 
-    @ExceptionHandler(Exception.class)
-    public String exception() {
-        return "server errror";
-    }
+//    @ExceptionHandler(Exception.class)
+//    public String exception() {
+//        return "server errror";
+//    }
 }

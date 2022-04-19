@@ -1,6 +1,7 @@
 package pbl.week2.controller;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.MediaType;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import pbl.week2.entity.dto.ResultMsg;
@@ -9,6 +10,7 @@ import pbl.week2.config.security.PrincipalDetails;
 import pbl.week2.service.BoardService;
 
 import javax.validation.Valid;
+import java.io.IOException;
 import java.util.List;
 
 @RestController
@@ -23,17 +25,18 @@ public class BoardController {
      */
     @PostMapping("/posts")
     public BoardDto.PostIdRes createBoard(
-            @Valid @RequestBody BoardDto.CreateReq createReq,
-            @AuthenticationPrincipal PrincipalDetails principal) {
-        Long boardId = boardService.createBoard(createReq, principal.getMemberSession().getId());
-        return new BoardDto.PostIdRes(1L);
+            BoardDto.FileReq fileReq,
+            @AuthenticationPrincipal PrincipalDetails principal) throws Exception {
+
+        Long boardId = boardService.createBoard(fileReq, principal.getMemberSession().getId());
+        return new BoardDto.PostIdRes(boardId);
     }
 
     /**
      * BoardList 전부 조회
      * 인증없이 API도달 가능이므로 princiaplDetails null checking필요
      */
-    @GetMapping("/posts")
+    @GetMapping(value = "/posts")
     public List<BoardDto.PostRes> getBoardList(
             @AuthenticationPrincipal PrincipalDetails principalDetails) {
         Long memberId = principalDetails != null ? principalDetails.getMemberSession().getId() : null;
@@ -44,10 +47,10 @@ public class BoardController {
      * Board 조회
      * 인증없이 API도달 가능이므로 princiaplDetails null checking필요
      */
-    @GetMapping("/posts/{postId}")
+    @GetMapping(value = "/posts/{postId}")
     public BoardDto.PostRes getBoard(
             @PathVariable("postId") Long postId,
-            @AuthenticationPrincipal PrincipalDetails principalDetails) {
+            @AuthenticationPrincipal PrincipalDetails principalDetails) throws IOException {
         Long memberId = principalDetails != null ? principalDetails.getMemberSession().getId() : null;
         return boardService.getBoard(postId, memberId);
     }
@@ -59,10 +62,10 @@ public class BoardController {
     public ResultMsg patchBoard(
             @PathVariable("postId") Long boardId,
             @AuthenticationPrincipal PrincipalDetails principalDetails,
-            @Valid @RequestBody BoardDto.CreateReq patchReq
-    ) {
+            BoardDto.FileReq fileReq
+    ) throws Exception {
 
-        boardService.patchBoard(boardId, principalDetails.getMemberSession().getId(), patchReq);
+        boardService.patchBoard(boardId, principalDetails.getMemberSession().getId(), fileReq);
         return new ResultMsg("success");
     }
 

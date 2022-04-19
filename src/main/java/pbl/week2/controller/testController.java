@@ -2,6 +2,7 @@ package pbl.week2.controller;
 
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.io.IOUtils;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -20,6 +21,7 @@ import java.io.InputStream;
 public class testController {
 
     private final FileHandler fileHandler;
+    private final ApplicationEventPublisher eventPublisher;
 
     @ResponseBody
     @PostMapping("/multipart")
@@ -41,12 +43,11 @@ public class testController {
     public ResponseEntity multipart2(
             BoardDto.FileReq req
     ) throws Exception {
-        BoardDto.FileDto fileDto = fileHandler.parseFileInfo(req.getPicture());
-
+        String filePath = fileHandler.getFilePath(req.getPicture());
+        fileHandler.saveFile(req.getPicture(), filePath);
         String absolutePath = new File("").getAbsolutePath() + File.separator + File.separator;
-        String path = fileDto.getFilePath();
 
-        InputStream imageStream = new FileInputStream(absolutePath + path);
+        InputStream imageStream = new FileInputStream(absolutePath + filePath);
         byte[] imageByteArray = IOUtils.toByteArray(imageStream);
         imageStream.close();
 
@@ -57,12 +58,12 @@ public class testController {
     @ResponseBody
     @GetMapping(value = "/image", produces = MediaType.IMAGE_GIF_VALUE)
     public byte[] form(BoardDto.FileReq req) throws Exception {
-        BoardDto.FileDto fileDto = fileHandler.parseFileInfo(req.getPicture());
+        String filePath = fileHandler.getFilePath(req.getPicture());
+        fileHandler.saveFile(req.getPicture(), filePath);
 
         String absolutePath = new File("").getAbsolutePath() + File.separator + File.separator;
-        String path = fileDto.getFilePath();
 
-        InputStream imageStream = new FileInputStream(absolutePath + path);
+        InputStream imageStream = new FileInputStream(absolutePath + filePath);
         byte[] imageByteArray = IOUtils.toByteArray(imageStream);
         imageStream.close();
 

@@ -40,7 +40,10 @@ public class LoveService {
         //이미 좋아요를 눌렀을 경우 & 안눌렀을 경우
         loveRepository.isLoveByMember(memberId, boardId)
                 .ifPresentOrElse(
-                        (love) -> loveRepository.delete(love),                              //좋아요가 있을 때
+                        (love) -> {
+                            board.downLove();
+                            loveRepository.delete(love);
+                        },                              //좋아요가 있을 때
                         () -> { throw new IllegalArgumentException("not exist like"); }     //좋아요가 없을 때
                 );
     }

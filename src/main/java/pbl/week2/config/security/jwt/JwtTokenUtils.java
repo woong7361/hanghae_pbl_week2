@@ -2,7 +2,13 @@ package pbl.week2.config.security.jwt;
 
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
+import com.auth0.jwt.exceptions.AlgorithmMismatchException;
+import com.auth0.jwt.exceptions.InvalidClaimException;
+import com.auth0.jwt.exceptions.SignatureVerificationException;
+import com.auth0.jwt.exceptions.TokenExpiredException;
 import com.auth0.jwt.interfaces.DecodedJWT;
+import org.springframework.security.authentication.AccountExpiredException;
+import org.springframework.security.authentication.BadCredentialsException;
 import pbl.week2.entity.Member;
 
 import javax.servlet.http.HttpServletRequest;
@@ -21,27 +27,21 @@ public final class JwtTokenUtils {
     public static final String CLAIM_USERNAME = "username";
     public static final String CLAIM_ID = "id";
 
-//    public static String generateJwtToken(Member member) {
-//        String token = null;
-//        try {
-//            token = JWT.create()
-//                    .withIssuer("sparta")
-//                    .withClaim(CLAIM_USER_NAME, member.getUsername())
-//                     // 토큰 만료 일시 = 현재 시간 + 토큰 유효기간)
-//                    .withClaim(CLAIM_EXPIRED_DATE, new Date(System.currentTimeMillis() + HOUR*2))
-//                    .sign(generateAlgorithm());
-//        } catch (Exception e) {
-//            System.out.println(e.getMessage());
-//        }
-//
-//        return token;
-//    }
-
     public static DecodedJWT verifyToken(String jwtToken) {
-        return JWT
-                .require(Algorithm.HMAC512(JWT_SECRET))
-                .build()
-                .verify(jwtToken);
+        try {
+            return JWT
+                    .require(Algorithm.HMAC512(JWT_SECRET))
+                    .build()
+                    .verify(jwtToken);
+        } catch (AlgorithmMismatchException algorithmMismatchException){
+            throw new BadCredentialsException("토큰 알고리즘 미스매칭");
+        } catch (SignatureVerificationException signatureVerificationException){
+            throw new BadCredentialsException("signature verifying 에러");
+        } catch (TokenExpiredException tokenExpiredException) {
+            throw new AccountExpiredException("토큰 만료됨");
+        } catch (InvalidClaimException invalidClaimException) {
+            throw new BadCredentialsException("invalidClaimError");
+        }
     }
 
     public static String getTokenFromHeader(HttpServletRequest request) {

@@ -33,6 +33,7 @@ public class Love {
         Love love = new Love(member, board);
         love.getMember().getLoves().add(love);
         love.getBoard().getLoves().add(love);
+        board.upLove();
         return love;
     }
 }
