@@ -26,7 +26,7 @@ public class Board extends TimeStamped {
     @JoinColumn(name = "member_id")
     private Member member;
 
-    @OneToMany(mappedBy = "board", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "board", cascade = CascadeType.ALL)
     private List<Love> loves = new ArrayList<>();
 
     //=========================생성자===============================//

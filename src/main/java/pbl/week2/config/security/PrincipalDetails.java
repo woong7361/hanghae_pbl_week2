@@ -17,20 +17,12 @@ public class PrincipalDetails implements UserDetails {
 
     public PrincipalDetails(Long id, String username, String password) {
         this.memberSession = new MemberDto.Session(id, username, password);
-
     }
-
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-//        Collection<GrantedAuthority> authorities = new ArrayList<>();
-//        member.getRoleList().forEach(r->{
-//            authorities.add(() -> r);
-//        });
-//        return authorities;
         return null;
     }
-
 
     @Override
     public String getPassword() {

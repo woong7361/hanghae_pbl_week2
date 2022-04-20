@@ -42,6 +42,11 @@ public class MemberDto {
         private Long id;
         private String username;
         private String password;
+
+        public Session(Login loginMember) {
+            this.username = loginMember.username;
+            this.password = loginMember.getPw();
+        }
     }
 
 }

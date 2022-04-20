@@ -20,8 +20,9 @@ import java.io.OutputStream;
 public class CustomAccessDeniedHandler implements AccessDeniedHandler {
     @Override
     public void handle(HttpServletRequest request, HttpServletResponse response, AccessDeniedException accessDeniedException) throws IOException, ServletException {
-        log.warn("CustomAccessDeniedHandler Error exception = {}", accessDeniedException.getClass());
-        log.warn("CustomAccessDeniedHandler Error Exception message = {}", accessDeniedException.getMessage());
+        log.error("사용되지 않는 핸들러입니다. 사용되면 조치하세요!");
+        log.error("CustomAccessDeniedHandler Error exception = {}", accessDeniedException.getClass());
+        log.error("CustomAccessDeniedHandler Error Exception message = {}", accessDeniedException.getMessage());
 
         response.setContentType(MediaType.APPLICATION_JSON_VALUE);
         response.setStatus(HttpStatus.FORBIDDEN.value());

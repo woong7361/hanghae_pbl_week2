@@ -22,10 +22,10 @@ public class Member extends TimeStamped {
     private String pw;
     private String nickname;
 
-    @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "member", cascade = CascadeType.ALL)
     private List<Board> boards = new ArrayList<>();
 
-    @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "member", cascade = CascadeType.ALL)
     private List<Love> loves = new ArrayList<>();
 
     //=========================생성자===============================//

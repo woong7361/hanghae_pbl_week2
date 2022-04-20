@@ -1,5 +1,8 @@
 package pbl.week2.config.exception.advice;
 
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.MessageSource;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.AuthenticationException;
@@ -7,36 +10,46 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import pbl.week2.config.exception.ErrorConstant;
+import pbl.week2.entity.dto.ResultMsg;
+
+import static pbl.week2.config.exception.ErrorConstant.DEFAULT_ERROR;
 
 @RestControllerAdvice
+@Slf4j
+@RequiredArgsConstructor
 @ResponseStatus(HttpStatus.BAD_REQUEST)
 public class ErrorControllerAdvice {
-    @ExceptionHandler(AuthenticationException.class)
-    public String authenticationException() {
-        return "authentication error";
-    }
 
-    @ExceptionHandler(AccessDeniedException.class)
-    public String accessDeniedException() {
-        return "accessDeniedException error";
-    }
+    private final MessageSource messageSource;
 
     /**
      * @Valid 처리 ExceptionHandler
      */
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public String validtionException() {
-        return "wroong input";
+    public ResultMsg validtionException(MethodArgumentNotValidException e) {
+        log.info("error message = {}",e.toString());
+        log.info("error field = {}", e.getFieldError().getField());
+
+        String message = messageSource.getMessage(DEFAULT_ERROR, null, null);
+        return new ResultMsg(message);
     }
 
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ExceptionHandler(IllegalArgumentException.class)
-    public String illegalArgumentException() {
-        return "IllegalArgumentException";
+    public ResultMsg illegalArgumentException(IllegalArgumentException e) {
+        log.info("error = {}",e.toString());
+
+        String message = messageSource.getMessage(DEFAULT_ERROR, null, null);
+        return new ResultMsg(message);
     }
 
-//    @ExceptionHandler(Exception.class)
-//    public String exception() {
-//        return "server errror";
-//    }
+    @ExceptionHandler(Exception.class)
+    public ResultMsg exception(Exception e) {
+        log.info("error = {}",e.toString());
+
+        String message = messageSource.getMessage(DEFAULT_ERROR, null, null);
+        return new ResultMsg(message);
+    }
 }

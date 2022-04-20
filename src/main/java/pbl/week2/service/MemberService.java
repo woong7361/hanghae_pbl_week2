@@ -5,6 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import pbl.week2.config.exception.ErrorConstant;
 import pbl.week2.entity.Member;
 import pbl.week2.entity.entityDto.MemberDto;
 import pbl.week2.repository.MemberRepository;
@@ -32,7 +33,8 @@ public class MemberService {
 
     private void isUsernameSameAsPassword(MemberDto.Register registerDto) {
         if (registerDto.getUsername().equals(registerDto.getPw())) {
-            throw new IllegalArgumentException("아이디와 비밀번호가 같으면 안됩니다");
+            log.info("아이디와 비밀번호가 같으면 안됩니다");
+            throw new IllegalArgumentException(ErrorConstant.DEFAULT_ERROR);
         }
     }
 
@@ -40,7 +42,8 @@ public class MemberService {
         boolean isUsername = memberRepository.findByUsername(registerDto.getUsername()).isPresent();
         boolean isNickname = memberRepository.findByNickname(registerDto.getNickname()).isPresent();
         if (isUsername || isNickname){
-            throw new IllegalArgumentException("duplicate username or nickname");
+            log.info("중복된 아이디 또는 닉네임이 존재합니다.");
+            throw new IllegalArgumentException(ErrorConstant.DEFAULT_ERROR);
         }
     }
 }

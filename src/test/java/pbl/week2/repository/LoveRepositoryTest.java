@@ -46,10 +46,10 @@ class LoveRepositoryTest {
         //given
 
         //when
-        Love love = em.createQuery("select l from Love l join l.board b on l.board.id = 3 where l.member.id = :memberId", Love.class)
-                .setParameter("memberId", 1L)
-                .getSingleResult();
-        System.out.println("love = " + love);
+//        Love love = em.createQuery("select l from Love l join l.board b on l.board.id = 3 where l.member.id = :memberId", Love.class)
+//                .setParameter("memberId", 1L)
+//                .getSingleResult();
+//        System.out.println("love = " + love);
         //then
     }
 

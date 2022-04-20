@@ -1,7 +1,9 @@
 package pbl.week2.config.security.exceptionhandler;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.MessageSource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -19,19 +21,32 @@ import java.io.OutputStream;
 
 @Slf4j
 @Component
+@RequiredArgsConstructor
 public class CustomAuthenticationEntryPoint implements AuthenticationEntryPoint {
+
+    private final MessageSource messageSource;
     @Override
     @ExceptionHandler(BadCredentialsException.class)
     public void commence(HttpServletRequest request, HttpServletResponse response, AuthenticationException authException) throws IOException, ServletException {
-        log.warn("CustomAuthenticationEntryPoint Error exception = {}", request.getAttribute("error").toString());
+        Exception error = (Exception)request.getAttribute("error");
+        log.warn("CustomAuthenticationEntryPoint Error exception = {}", error.toString());
+
+        String message;
+        try {
+            message = messageSource.getMessage(error.getMessage(), null, null);
+        } catch (Exception e) {
+            message = messageSource.getMessage("error.default", null, null);;
+        }
+
         response.setContentType(MediaType.APPLICATION_JSON_VALUE);
         response.setStatus(HttpStatus.FORBIDDEN.value());
-        ResultMsg error = new ResultMsg("fail");
+        ResultMsg msg = new ResultMsg(message);
 
         try (OutputStream os = response.getOutputStream()) {
             ObjectMapper objectMapper = new ObjectMapper();
-            objectMapper.writeValue(os, error);
+            objectMapper.writeValue(os, msg);
             os.flush();
         }
     }
+
 }

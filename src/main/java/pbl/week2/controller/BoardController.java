@@ -1,6 +1,7 @@
 package pbl.week2.controller;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.MediaType;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
@@ -37,10 +38,12 @@ public class BoardController {
      * 인증없이 API도달 가능이므로 princiaplDetails null checking필요
      */
     @GetMapping(value = "/posts")
-    public List<BoardDto.PostRes> getBoardList(
-            @AuthenticationPrincipal PrincipalDetails principalDetails) {
+    public BoardDto.PostResList getBoardList(
+            @AuthenticationPrincipal PrincipalDetails principalDetails,
+            Pageable pageable
+    ) {
         Long memberId = principalDetails != null ? principalDetails.getMemberSession().getId() : null;
-        return boardService.getBoardList(memberId);
+        return boardService.getBoardList(memberId, pageable);
     }
 
     /**

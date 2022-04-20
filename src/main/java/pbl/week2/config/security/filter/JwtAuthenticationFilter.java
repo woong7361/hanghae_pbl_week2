@@ -12,6 +12,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.util.StringUtils;
+import pbl.week2.config.exception.ErrorConstant;
 import pbl.week2.config.security.PrincipalDetails;
 import pbl.week2.entity.dto.ResultMsg;
 import pbl.week2.entity.entityDto.MemberDto;
@@ -25,6 +26,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.util.Date;
 
+import static pbl.week2.config.exception.ErrorConstant.LOGIN_ERROR;
 import static pbl.week2.config.security.jwt.JwtTokenUtils.*;
 
 
@@ -48,26 +50,28 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
     public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response) throws AuthenticationException {
         System.out.println("JWT AuthenticationFilter: 로그인 시도중");
 
-
         String jwtHeader = request.getHeader(TOKEN_HEADER_NAME);
         if (jwtHeader != null && jwtHeader.startsWith(TOKEN_NAME_WITH_SPACE)) {
             String jwtToken = getTokenFromHeader(request);
             String username = JwtTokenUtils.verifyToken(jwtToken)
                     .getClaim(CLAIM_USERNAME)
                     .asString();
+
             if (StringUtils.hasText(username)) {
-                throw new DisabledException("이미 로그인되어있는 유저입니다.");
+                log.info("이미 로그인되어있는 유저입니다.");
+                throw new DisabledException(LOGIN_ERROR);
             }
         }
 
         //1 get username, password
         try {
             ObjectMapper om = new ObjectMapper();
-            MemberDto.Session member = om.readValue(request.getInputStream(), MemberDto.Session.class);
+            MemberDto.Login loginMember = om.readValue(request.getInputStream(), MemberDto.Login.class);
+            MemberDto.Session member= new MemberDto.Session(loginMember);
 
             if (!StringUtils.hasText(member.getUsername()) || !StringUtils.hasText(member.getPassword())) {
                 log.info("아이디 혹은 비밀번호가 비어있습니다. {}", member);
-                throw new BadCredentialsException("아이디 혹은 비밀번호가 비어있습니다.");
+                throw new BadCredentialsException(LOGIN_ERROR);
             }
 
             UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken =
@@ -83,8 +87,8 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
             return authentication;
 
         } catch (IOException e) {
-            log.info("입력 오류");
-            throw new RuntimeException(e);
+            log.info("IOException!!!!!   {}", e.toString());
+            throw new BadCredentialsException(LOGIN_ERROR);
         }
     }
 

@@ -6,7 +6,6 @@ import lombok.Getter;
 public class FileDeleteEvent {
 
     private String filePath;
-
     public FileDeleteEvent(String filePath) {
         this.filePath = filePath;
     }

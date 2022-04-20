@@ -7,13 +7,16 @@ import com.auth0.jwt.exceptions.InvalidClaimException;
 import com.auth0.jwt.exceptions.SignatureVerificationException;
 import com.auth0.jwt.exceptions.TokenExpiredException;
 import com.auth0.jwt.interfaces.DecodedJWT;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.AccountExpiredException;
 import org.springframework.security.authentication.BadCredentialsException;
-import pbl.week2.entity.Member;
+import pbl.week2.config.exception.ErrorConstant;
 
 import javax.servlet.http.HttpServletRequest;
-import java.util.Date;
 
+import static pbl.week2.config.exception.ErrorConstant.TOKEN_ERROR;
+
+@Slf4j
 public final class JwtTokenUtils {
 
     public static final int SEC = 1000;
@@ -27,6 +30,7 @@ public final class JwtTokenUtils {
     public static final String CLAIM_USERNAME = "username";
     public static final String CLAIM_ID = "id";
 
+
     public static DecodedJWT verifyToken(String jwtToken) {
         try {
             return JWT
@@ -34,20 +38,29 @@ public final class JwtTokenUtils {
                     .build()
                     .verify(jwtToken);
         } catch (AlgorithmMismatchException algorithmMismatchException){
-            throw new BadCredentialsException("토큰 알고리즘 미스매칭");
+            log.info("토큰 알고리즘 미스매칭");
+            throw new BadCredentialsException(TOKEN_ERROR);
         } catch (SignatureVerificationException signatureVerificationException){
-            throw new BadCredentialsException("signature verifying 에러");
+            log.info("signature verifying 에러");
+            throw new BadCredentialsException(TOKEN_ERROR);
         } catch (TokenExpiredException tokenExpiredException) {
-            throw new AccountExpiredException("토큰 만료됨");
+            log.info("토큰 만료됨");
+            throw new AccountExpiredException(TOKEN_ERROR);
         } catch (InvalidClaimException invalidClaimException) {
-            throw new BadCredentialsException("invalidClaimError");
+            log.info("토큰 클레임 에러");
+            throw new BadCredentialsException(TOKEN_ERROR);
         }
     }
 
     public static String getTokenFromHeader(HttpServletRequest request) {
-        return request.
-                getHeader(TOKEN_HEADER_NAME).
-                replace(TOKEN_NAME_WITH_SPACE, "");
+        try {
+            return request.
+                    getHeader(TOKEN_HEADER_NAME).
+                    replace(TOKEN_NAME_WITH_SPACE, "");
+        } catch (Exception e) {
+            log.info("헤더 추출 에러");
+            throw new BadCredentialsException(TOKEN_ERROR);
+        }
     }
 
     private static Algorithm generateAlgorithm() {

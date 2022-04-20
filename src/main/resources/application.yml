@@ -1,19 +1,24 @@
+
+
 spring:
+  messages.basename: messages, error
+
   datasource:
-    url: jdbc:h2:tcp://localhost/~/week2
-    username: sa
-    password:
-    driver-class-name: org.h2.Driver
-#    url: jdbc:mysql://springboot-db.cxwbtxacq4p8.ap-northeast-2.rds.amazonaws.com:3306/myselectshop
-  #    username: woong7361
-  #    password: dlgusdnd5
-#    driver-class-name: com.mysql.cj.jdbc.Driver
+#    url: jdbc:h2:tcp://localhost/~/week2
+#    username: sa
+#    password:
+#    driver-class-name: org.h2.Driver
+    url: jdbc:mysql://springboot-db.cxwbtxacq4p8.ap-northeast-2.rds.amazonaws.com:3306/myselectshop
+    username: woong7361
+    password: dlgusdnd5
+    driver-class-name: com.mysql.cj.jdbc.Driver
 
   jpa:
     hibernate:
       ddl-auto: none
     properties:
       hibernate:
+        show_sql: true
         format_sql: true
         # !!!!!!!배치 사이즈 글로벌 옵션!!!!!!!!!!
 #        default_batch_fetch_size: 100
@@ -23,9 +28,9 @@ spring:
     maxFileSize: 10MB
     maxRequestSize: 20MB
 
-server:
-  tomcat:
-    basedir: /home/woong/code/sparata/temp
+#server:
+#  tomcat:
+#    basedir: /home/woong/code/sparata/temp
 
 
 logging:

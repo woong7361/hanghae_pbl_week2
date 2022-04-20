@@ -48,8 +48,7 @@ public class JwtAuthorizationFilter extends BasicAuthenticationFilter {
             //헤더가 있는지 확인
             if (jwtHeader == null || !jwtHeader.startsWith(TOKEN_NAME_WITH_SPACE)) {
                 log.info("no header request");
-                chain.doFilter(request, response);
-                return;
+                throw new BadCredentialsException("error.authorization.token");
             }
             String jwtToken = getTokenFromHeader(request);
 
@@ -67,6 +66,7 @@ public class JwtAuthorizationFilter extends BasicAuthenticationFilter {
 
             //강제로 시큐리티의 세션에 접근하여 Authentication 객체를 저장
             SecurityContextHolder.getContext().setAuthentication(authentication);
+
         } catch (AuthenticationException | AccessDeniedException e) {
             request.setAttribute("error", e);
         } catch (Exception e){
@@ -75,7 +75,5 @@ public class JwtAuthorizationFilter extends BasicAuthenticationFilter {
         finally { //에러가 발생시 authenticationentrypoint로
             chain.doFilter(request, response);
         }
-
     }
-
 }
