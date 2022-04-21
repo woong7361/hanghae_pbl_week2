@@ -7,6 +7,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import pbl.week2.config.exception.PblException;
 import pbl.week2.entity.Board;
 import pbl.week2.entity.Love;
 import pbl.week2.entity.Member;
@@ -43,12 +44,8 @@ public class BoardService {
      */
     @Transactional
     public Long createBoard(BoardDto.FileReq createReq, Long userId){
-        Member member = memberRepository
-                .findById(userId)
-                .orElseThrow(() -> {
-                    log.info("not exist member");
-                    return new IllegalArgumentException(DEFAULT_ERROR);
-                });
+        Member member = memberRepository.findById(userId)
+                .orElseThrow(() -> new PblException("not exist member", DEFAULT_ERROR));
 
         //파일 경로 추출
         String filePath = fileHandler.getFilePath(createReq.getPicture());
@@ -60,7 +57,7 @@ public class BoardService {
         } catch (Exception e) {
             log.info("파일 생성 에러 파일도 롤백(삭제) 시도");
             eventPublisher.publishEvent(new FileDeleteEvent(filePath));   //파일 업로드시 에러가 나면 파일 삭제 시도
-            throw new IllegalArgumentException(DEFAULT_ERROR);               //db rollback
+            throw new PblException("파일 생성 에러 -> 롤백시도", DEFAULT_ERROR);               //db rollback
         }
         return newBoard.getId();
     }
@@ -98,22 +95,14 @@ public class BoardService {
                     b.getLikeCount(),
                     myLikeBoardId.anyMatch(boardId -> boardId.equals(b.getId())),
                     b.getModifiedAt()
-            )).orElseThrow(() -> {
-            log.info("존재하지 않는 개시판입니다.");
-            return new IllegalArgumentException(DEFAULT_ERROR);
-        });
-
+            )).orElseThrow(() -> new PblException("존재하지 않는 개시판입니다.", DEFAULT_ERROR));
     }
 
     @Transactional
     public void patchBoard(Long boardId, Long memberId, BoardDto.FileReq fileReq) {
         //자신의 보드가 맞는지 확인 후 수정
-        Board board = boardRepository.findById(boardId)
-                .filter(b -> b.getMember().getId().equals(memberId))
-                .orElseThrow(() -> {
-                    log.info("게시판이 존재하지 않거나 당신의 게시판이 아닙니다.");
-                    return new IllegalArgumentException(DEFAULT_ERROR);
-                });
+        Board board = boardRepository.findById(boardId).filter(b -> b.getMember().getId().equals(memberId))
+                .orElseThrow(() -> new PblException("게시판 주인이 아닙니다.", DEFAULT_ERROR));
 
         byte[] backupImage = fileHandler.getFileToByte(board.getPicture());
         String backupPath = board.getPicture();
@@ -126,8 +115,7 @@ public class BoardService {
         } catch (Exception e){
             eventPublisher.publishEvent(new FileRecoverEvent(backupPath, backupImage));    //복원
             eventPublisher.publishEvent(new FileDeleteEvent(filePath));                   //삭제
-            log.info("파일 저장 에러");
-            throw new IllegalArgumentException(FILE_ERROR);
+            throw new PblException("파일 저장 에러", FILE_ERROR);
         }
     }
 
@@ -140,10 +128,7 @@ public class BoardService {
                             boardRepository.delete(board);
                             fileHandler.removeFile(board.getPicture());
                         },
-                        () -> {
-                            log.info("당신의 게시판이 아닙니다.");
-                            throw new IllegalArgumentException(DEFAULT_ERROR);
-                        }
+                        () -> {throw new PblException("당신의 게시판이 아닙니다.", DEFAULT_ERROR);}
                 );
     }
 

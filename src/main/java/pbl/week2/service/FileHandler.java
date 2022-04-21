@@ -5,6 +5,7 @@ import org.apache.commons.io.IOUtils;
 import org.springframework.stereotype.Component;
 import org.springframework.util.ObjectUtils;
 import org.springframework.web.multipart.MultipartFile;
+import pbl.week2.config.exception.PblException;
 import pbl.week2.entity.entityDto.BoardDto;
 
 import java.io.*;
@@ -62,8 +63,7 @@ public class FileHandler {
             imageByteArray = IOUtils.toByteArray(imageStream);
             imageStream.close();
         } catch (IOException e) {
-            log.info("IOEception 파일을 byte로 바꾸다 에러 발생");
-            throw new IllegalArgumentException(FILE_ERROR);
+            throw new PblException("IOEception 파일을 byte로 바꾸다 에러 발생", FILE_ERROR);
         }
 
         return imageByteArray;

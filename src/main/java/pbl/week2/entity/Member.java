@@ -30,7 +30,7 @@ public class Member extends TimeStamped {
 
     //=========================생성자===============================//
 
-    public Member(String username, String pw, String nickname) {
+    private Member(String username, String pw, String nickname) {
         this.username = username;
         this.pw = pw;
         this.nickname = nickname;

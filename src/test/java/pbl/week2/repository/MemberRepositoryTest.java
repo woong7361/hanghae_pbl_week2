@@ -1,82 +1,77 @@
 package pbl.week2.repository;
 
 import org.assertj.core.api.Assertions;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
-import pbl.week2.entity.Board;
+import pbl.week2.config.exception.PblException;
 import pbl.week2.entity.Member;
 
 import javax.persistence.EntityManager;
-
-import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+
 @DataJpaTest
-@AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 class MemberRepositoryTest {
 
-    @Autowired
-    MemberRepository memberRepository;
-    @Autowired
-    EntityManager em;
-    @Autowired
-    private BoardRepository boardRepository;
+    @Autowired private EntityManager em;
+    @Autowired private MemberRepository memberRepository;
 
+    private Member createMember() {
+        return Member.createMember("user1", "password1", "nickname1");
+    }
+    private Member createMember(String username, String pw, String nickname) {
+        return Member.createMember(username, pw, nickname);
+    }
+    private void persistenceContextclear() {
+        em.flush();
+        em.clear();
+    }
 
     @Test
-    @DisplayName("MemberRepository 저장 확인")
-    public void testMember() throws Exception{
+    public void createDeleteMemberTest() throws Exception{
         //given
-        Member member1 = Member.createMember("member1", "pw1", "nickname1");
-        Member member2 = Member.createMember("member2", "pw2", "nickname2");
+        Member member1 = createMember("member1", "password1", "nickname1");
+        Member member2 = createMember("member2", "password2", "nickname2");
         memberRepository.save(member1);
         memberRepository.save(member2);
-        em.flush();
-        em.clear();
+        persistenceContextclear();
+
         //when
-        Optional<Member> findMember = memberRepository.findById(member1.getId());
+        Member findMember = memberRepository.findById(member1.getId())
+                .orElseThrow(() -> new PblException("log", "code"));
+        memberRepository.deleteById(member2.getId());
+        Optional<Member> deletedMember = memberRepository.findById(member2.getId());
         //then
 
-        assertThat(findMember.map(Member::getUsername).orElse("empty")).isEqualTo("member1");
+        assertThat(findMember.getNickname()).isEqualTo(member1.getNickname());
+        assertThatThrownBy(() -> deletedMember.orElseThrow(() -> new PblException("log", "code"))).isInstanceOf(PblException.class);
     }
 
     @Test
-    @DisplayName("멤버 삭제")
-    public void deleteMember() throws Exception{
-        Member member1 = Member.createMember("member1", "pw1", "nickname1");
-        memberRepository.save(member1);
-        Board board1 = Board.createBoard("content1", "picture1", member1);
-        Board board2 = Board.createBoard("content2", "picture2", member1);
-        boardRepository.save(board1);
-        boardRepository.save(board2);
-        em.flush();
-        em.clear();
+    public void findByNicknameTest() throws Exception{
+        //given
+        Member member = createMember();
+        memberRepository.save(member);
+        persistenceContextclear();
         //when
-        Optional<Member> findMember = memberRepository.findById(member1.getId());
-        memberRepository.delete(findMember.get());
-        List<Board> all = boardRepository.findAll();
-        //that
-        assertThat(all.size()).isEqualTo(0);
+        Optional<Member> findMember = memberRepository.findByNickname(member.getNickname());
+        //then
+        assertThat(findMember.map(Member::getNickname).orElse(null)).isEqualTo(member.getNickname());
     }
 
     @Test
-    @DisplayName("멤버 cascadeTest")
-    public void cascadeTest() throws Exception{
-        Member member1 = Member.createMember("member1", "pw1", "nickname1");
-        Board board1 = Board.createBoard("content1", "picture1", member1);
-        Board board2 = Board.createBoard("content2", "picture2", member1);
-        memberRepository.save(member1);
-        em.flush();
-        em.clear();
+    public void findByUsername() throws Exception{
+        //given
+        Member member = createMember();
+        memberRepository.save(member);
+        persistenceContextclear();
         //when
-        List<Board> all = boardRepository.findAll();
-        //that
-        assertThat(all.size()).isEqualTo(2);
+        Optional<Member> findMember = memberRepository.findByUsername(member.getUsername());
+        //then
+        assertThat(findMember.map(Member::getUsername).orElse(null)).isEqualTo(member.getUsername());
     }
+
 }

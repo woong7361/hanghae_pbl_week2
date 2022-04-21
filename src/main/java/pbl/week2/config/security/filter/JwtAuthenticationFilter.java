@@ -12,7 +12,9 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.util.StringUtils;
+import pbl.week2.config.exception.CustomAuthenticationException;
 import pbl.week2.config.exception.ErrorConstant;
+import pbl.week2.config.exception.ExceptionUtil;
 import pbl.week2.config.security.PrincipalDetails;
 import pbl.week2.entity.dto.ResultMsg;
 import pbl.week2.entity.entityDto.MemberDto;
@@ -48,30 +50,16 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
 
     @Override
     public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response) throws AuthenticationException {
-        System.out.println("JWT AuthenticationFilter: 로그인 시도중");
+        log.info("JWT AuthenticationFilter: 로그인 시도중");
 
-        String jwtHeader = request.getHeader(TOKEN_HEADER_NAME);
-        if (jwtHeader != null && jwtHeader.startsWith(TOKEN_NAME_WITH_SPACE)) {
-            String jwtToken = getTokenFromHeader(request);
-            String username = JwtTokenUtils.verifyToken(jwtToken)
-                    .getClaim(CLAIM_USERNAME)
-                    .asString();
-
-            if (StringUtils.hasText(username)) {
-                log.info("이미 로그인되어있는 유저입니다.");
-                throw new DisabledException(LOGIN_ERROR);
-            }
-        }
+        confirmDuplicateLogin(request);
 
         //1 get username, password
         try {
-            ObjectMapper om = new ObjectMapper();
-            MemberDto.Login loginMember = om.readValue(request.getInputStream(), MemberDto.Login.class);
-            MemberDto.Session member= new MemberDto.Session(loginMember);
+            MemberDto.Session member = getMemberSessionFromRequest(request);
 
             if (!StringUtils.hasText(member.getUsername()) || !StringUtils.hasText(member.getPassword())) {
-                log.info("아이디 혹은 비밀번호가 비어있습니다. {}", member);
-                throw new BadCredentialsException(LOGIN_ERROR);
+                throw new CustomAuthenticationException("아이디 혹은 비밀번호가 비어있습니다.", LOGIN_ERROR);
             }
 
             UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken =
@@ -87,10 +75,10 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
             return authentication;
 
         } catch (IOException e) {
-            log.info("IOException!!!!!   {}", e.toString());
-            throw new BadCredentialsException(LOGIN_ERROR);
+            throw new CustomAuthenticationException("IOException!!!!!", LOGIN_ERROR);
         }
     }
+
 
     //attemptAuthentication실행 후 인증이 정상적으로 되었으면 successfulAuthentication 실행된다
     //JWT토큰을 만들어서 response해주면 된다
@@ -100,21 +88,36 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
         PrincipalDetails principal = (PrincipalDetails) authResult.getPrincipal();
 
         //token에 id와 username 추가
-        String jwtToken = JWT.create()
-                .withSubject("sub")
-                .withExpiresAt(new Date(System.currentTimeMillis() + (2 * HOUR) ))
-                .withClaim(CLAIM_ID, principal.getMemberSession().getId())
-                .withClaim(CLAIM_USERNAME, principal.getUsername())
-                .sign(Algorithm.HMAC512(JWT_SECRET));   //secretkey
+        String jwtToken = createToken(principal);
 
-        response.addHeader(TOKEN_HEADER_NAME, TOKEN_NAME_WITH_SPACE + jwtToken);
+        response.addHeader(TOKEN_HEADER_NAME, jwtToken);
 
         //response Body Msg추가
-        ResultMsg error = new ResultMsg("success");
-        try (OutputStream os = response.getOutputStream()) {
-            ObjectMapper objectMapper = new ObjectMapper();
-            objectMapper.writeValue(os, error);
-            os.flush();
+        ResultMsg success = new ResultMsg("success");
+        ExceptionUtil.makeResponseInFilter(response, success);
+    }
+
+
+    // ======================================================================================== //
+
+    private MemberDto.Session getMemberSessionFromRequest(HttpServletRequest request) throws IOException {
+        ObjectMapper om = new ObjectMapper();
+        MemberDto.Login loginMember = om.readValue(request.getInputStream(), MemberDto.Login.class);
+        MemberDto.Session member= new MemberDto.Session(loginMember);
+        return member;
+    }
+
+    private void confirmDuplicateLogin(HttpServletRequest request) {
+        String jwtHeader = request.getHeader(TOKEN_HEADER_NAME);
+        if (jwtHeader != null && jwtHeader.startsWith(TOKEN_NAME_WITH_SPACE)) {
+            String jwtToken = getTokenFromHeader(request);
+            String username = JwtTokenUtils.verifyToken(jwtToken)
+                    .getClaim(CLAIM_USERNAME)
+                    .asString();
+
+            if (StringUtils.hasText(username)) {
+                throw new CustomAuthenticationException("이미 로그인되어있는 유저입니다.", LOGIN_ERROR);
+            }
         }
     }
 

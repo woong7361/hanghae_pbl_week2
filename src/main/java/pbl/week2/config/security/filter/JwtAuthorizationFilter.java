@@ -1,6 +1,7 @@
 package pbl.week2.config.security.filter;
 
 
+import com.auth0.jwt.interfaces.Claim;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -13,6 +14,8 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
+import pbl.week2.config.exception.CustomAuthenticationException;
+import pbl.week2.config.exception.ErrorConstant;
 import pbl.week2.config.security.PrincipalDetails;
 import pbl.week2.repository.MemberRepository;
 
@@ -47,8 +50,7 @@ public class JwtAuthorizationFilter extends BasicAuthenticationFilter {
 
             //헤더가 있는지 확인
             if (jwtHeader == null || !jwtHeader.startsWith(TOKEN_NAME_WITH_SPACE)) {
-                log.info("no header request");
-                throw new BadCredentialsException("error.authorization.token");
+                throw new CustomAuthenticationException("no header request", ErrorConstant.TOKEN_ERROR);
             }
             String jwtToken = getTokenFromHeader(request);
 
@@ -56,7 +58,7 @@ public class JwtAuthorizationFilter extends BasicAuthenticationFilter {
 
             PrincipalDetails principalDetails = new PrincipalDetails(
                     decodedJWT.getClaim(CLAIM_ID).asLong(),
-                    decodedJWT.getClaim(CLAIM_USERNAME).toString(),
+                    ((Claim) decodedJWT.getClaim(CLAIM_USERNAME)).asString(),
                     null
             );
             //토큰을 강제로 생성 - 서비스를 통해 로그인을 할것이 아니기 때문에 비밀번호는 null이 가능하다.
@@ -67,12 +69,12 @@ public class JwtAuthorizationFilter extends BasicAuthenticationFilter {
             //강제로 시큐리티의 세션에 접근하여 Authentication 객체를 저장
             SecurityContextHolder.getContext().setAuthentication(authentication);
 
-        } catch (AuthenticationException | AccessDeniedException e) {
-            request.setAttribute("error", e);
-        } catch (Exception e){
-            request.setAttribute("error", e);
+        }catch (CustomAuthenticationException e){
+            request.setAttribute("custom", e);
         }
-        finally { //에러가 발생시 authenticationentrypoint로
+        catch (Exception e) {
+            request.setAttribute("error", e);
+        } finally { //에러가 발생시 authenticationentrypoint로
             chain.doFilter(request, response);
         }
     }

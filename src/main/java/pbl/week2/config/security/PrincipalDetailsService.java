@@ -6,6 +6,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
+import pbl.week2.config.exception.CustomAuthenticationException;
 import pbl.week2.entity.Member;
 import pbl.week2.repository.MemberRepository;
 
@@ -20,10 +21,7 @@ public class PrincipalDetailsService implements UserDetailsService {
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         Member member = memberRepository.findByUsername(username)
-                .orElseThrow(() -> {
-                    log.info("로그인 요청한 회원이 DB에 없다");
-                    return new UsernameNotFoundException(LOGIN_ERROR);
-                });
+                .orElseThrow(() -> new CustomAuthenticationException("로그인 요청한 회원이 DB에 없다", LOGIN_ERROR));
 
         return new PrincipalDetails(member.getId(), member.getUsername(), member.getPw());
     }

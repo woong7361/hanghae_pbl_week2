@@ -65,9 +65,7 @@ public class BoardController {
     public ResultMsg patchBoard(
             @PathVariable("postId") Long boardId,
             @AuthenticationPrincipal PrincipalDetails principalDetails,
-            BoardDto.FileReq fileReq
-    ) throws Exception {
-
+            BoardDto.FileReq fileReq) {
         boardService.patchBoard(boardId, principalDetails.getMemberSession().getId(), fileReq);
         return new ResultMsg("success");
     }

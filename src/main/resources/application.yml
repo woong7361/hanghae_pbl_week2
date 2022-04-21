@@ -28,7 +28,8 @@ spring:
     maxFileSize: 10MB
     maxRequestSize: 20MB
 
-#server:
+
+
 #  tomcat:
 #    basedir: /home/woong/code/sparata/temp
 

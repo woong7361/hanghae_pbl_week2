@@ -24,7 +24,7 @@ public class Love {
 
     //=========================생성자===============================//
 
-    public Love(Member member, Board board) {
+    private Love(Member member, Board board) {
         this.member = member;
         this.board = board;
     }

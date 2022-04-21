@@ -30,7 +30,7 @@ public class Board extends TimeStamped {
     private List<Love> loves = new ArrayList<>();
 
     //=========================생성자===============================//
-    public Board(String content, String picture, Member member) {
+    private Board(String content, String picture, Member member) {
         this.content = content;
         this.picture = picture;
         this.likeCount = 0L;

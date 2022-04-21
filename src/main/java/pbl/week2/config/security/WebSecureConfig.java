@@ -2,12 +2,17 @@ package pbl.week2.config.security;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Configurable;
+import org.springframework.context.annotation.Bean;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import pbl.week2.config.security.exceptionhandler.CustomAuthenticationEntryPoint;
 import pbl.week2.config.security.filter.JwtAuthenticationFilter;
 import pbl.week2.config.security.filter.JwtAuthorizationFilter;
@@ -34,7 +39,8 @@ public class WebSecureConfig extends WebSecurityConfigurerAdapter {
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
-        http.cors().and().csrf().disable()
+        http.cors().configurationSource(corsConfigurationSource())
+                .and().csrf().disable()
                 .exceptionHandling()
                 .authenticationEntryPoint(authenticationEntryPoint)
                 .accessDeniedHandler(new CustomAccessDeniedHandler());
@@ -45,6 +51,7 @@ public class WebSecureConfig extends WebSecurityConfigurerAdapter {
                 .addFilter(jwtAuthenticationFilter(authenticationManager()))// authentication manager를 파라미터로 넘겨주어야 한다
                 .addFilter(new JwtAuthorizationFilter(authenticationManager(), authenticationEntryPoint, memberRepository))
                 .authorizeRequests()
+                .antMatchers(HttpMethod.OPTIONS, "/api/*").permitAll() //option method 허락
                 .antMatchers("/api/posts").permitAll()
                 .antMatchers("/api/**").authenticated()
                 .anyRequest().permitAll();
@@ -63,6 +70,18 @@ public class WebSecureConfig extends WebSecurityConfigurerAdapter {
         JwtAuthenticationFilter jwtAuthenticationFilter = new JwtAuthenticationFilter(authenticationManager);
         jwtAuthenticationFilter.setAuthenticationFailureHandler(authenticationFailureHandler);
         return jwtAuthenticationFilter;
+    }
+
+    @Bean
+    public CorsConfigurationSource corsConfigurationSource() {
+        CorsConfiguration corsConfiguration = new CorsConfiguration();
+        corsConfiguration.addAllowedOrigin("*");
+        corsConfiguration.addAllowedMethod("*");
+        corsConfiguration.addAllowedHeader("*");
+        corsConfiguration.addExposedHeader("Authorization");
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/**", corsConfiguration);
+        return source;
     }
 
 }

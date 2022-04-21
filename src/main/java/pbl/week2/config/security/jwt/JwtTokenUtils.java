@@ -10,9 +10,13 @@ import com.auth0.jwt.interfaces.DecodedJWT;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.AccountExpiredException;
 import org.springframework.security.authentication.BadCredentialsException;
+import pbl.week2.config.exception.CustomAuthenticationException;
 import pbl.week2.config.exception.ErrorConstant;
+import pbl.week2.config.security.PrincipalDetails;
 
 import javax.servlet.http.HttpServletRequest;
+
+import java.util.Date;
 
 import static pbl.week2.config.exception.ErrorConstant.TOKEN_ERROR;
 
@@ -38,32 +42,37 @@ public final class JwtTokenUtils {
                     .build()
                     .verify(jwtToken);
         } catch (AlgorithmMismatchException algorithmMismatchException){
-            log.info("토큰 알고리즘 미스매칭");
-            throw new BadCredentialsException(TOKEN_ERROR);
+            throw new CustomAuthenticationException("토큰 알고리즘 미스매칭", TOKEN_ERROR);
         } catch (SignatureVerificationException signatureVerificationException){
-            log.info("signature verifying 에러");
-            throw new BadCredentialsException(TOKEN_ERROR);
+            throw new CustomAuthenticationException("signature verifying 에러", TOKEN_ERROR);
         } catch (TokenExpiredException tokenExpiredException) {
-            log.info("토큰 만료됨");
-            throw new AccountExpiredException(TOKEN_ERROR);
+            throw new CustomAuthenticationException("토큰 만료됨", TOKEN_ERROR);
         } catch (InvalidClaimException invalidClaimException) {
-            log.info("토큰 클레임 에러");
-            throw new BadCredentialsException(TOKEN_ERROR);
+            throw new CustomAuthenticationException("토큰 클레임 에러", TOKEN_ERROR);
         }
     }
 
-    public static String getTokenFromHeader(HttpServletRequest request) {
+    public static String getTokenFromHeader(HttpServletRequest request) throws CustomAuthenticationException {
         try {
             return request.
                     getHeader(TOKEN_HEADER_NAME).
                     replace(TOKEN_NAME_WITH_SPACE, "");
         } catch (Exception e) {
-            log.info("헤더 추출 에러");
-            throw new BadCredentialsException(TOKEN_ERROR);
+            throw new CustomAuthenticationException("헤더 추출 에러", TOKEN_ERROR);
         }
     }
 
+    public static String createToken(PrincipalDetails principal) {
+        String token = JWT.create()
+                .withSubject("sub")
+                .withExpiresAt(new Date(System.currentTimeMillis() + (2 * HOUR) ))
+                .withClaim(CLAIM_ID, principal.getMemberSession().getId())
+                .withClaim(CLAIM_USERNAME, principal.getUsername())
+                .sign(Algorithm.HMAC512(JWT_SECRET));   //secretkey
+        return TOKEN_NAME_WITH_SPACE + token;
+    }
+
     private static Algorithm generateAlgorithm() {
-        return Algorithm.HMAC256(JWT_SECRET);
+        return Algorithm.HMAC512(JWT_SECRET);
     }
 }

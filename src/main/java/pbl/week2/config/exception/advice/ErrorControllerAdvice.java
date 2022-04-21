@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import pbl.week2.config.exception.ErrorConstant;
+import pbl.week2.config.exception.PblException;
 import pbl.week2.entity.dto.ResultMsg;
 
 import static pbl.week2.config.exception.ErrorConstant.DEFAULT_ERROR;
@@ -42,6 +43,15 @@ public class ErrorControllerAdvice {
         log.info("error = {}",e.toString());
 
         String message = messageSource.getMessage(DEFAULT_ERROR, null, null);
+        return new ResultMsg(message);
+    }
+
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ExceptionHandler(PblException.class)
+    public ResultMsg PblException(PblException e) {
+        log.info(e.getErrorLog());
+        String message = messageSource.getMessage(e.getErrorLog(), null, null);
+
         return new ResultMsg(message);
     }
 

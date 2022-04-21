@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
+import pbl.week2.config.exception.PblException;
 import pbl.week2.entity.entityDto.BoardDto;
 import pbl.week2.event.FileDeleteEvent;
 import pbl.week2.event.FileRecoverEvent;
@@ -49,12 +50,10 @@ public class FileEventHandler {
                 fileOutputStream.write(recoveryData);
                 fileOutputStream.close();
             } catch (Exception e) {
-                throw new IllegalArgumentException(FILE_ERROR);
+                throw new PblException("파일 복원 에러", FILE_ERROR);
             }
         } else {
             log.info("복원하려는 파일이 이미 존재합니다. 경로: {}", BoardDto.ABSOLUTE_PATH + filePath);
         }
-
     }
-
 }
