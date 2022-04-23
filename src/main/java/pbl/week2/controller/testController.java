@@ -76,10 +76,4 @@ public class testController {
 
         return imageByteArray;
     }
-
-    @ResponseBody
-    @GetMapping(value = "/api/posts/{id}/paging")
-    public Slice<BoardDto.PostRes> form(@PathVariable("id") String id, Pageable pageable) {
-        return boardService.getpaging(pageable);
-    }
 }

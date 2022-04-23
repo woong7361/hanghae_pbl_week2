@@ -46,7 +46,7 @@ public class AuthenticationFailureHandlerImpl extends SimpleUrlAuthenticationFai
 
 
         //front-end 에서 default error만 요청
-        ResultMsg error = new ResultMsg("fail");
+        ResultMsg error = new ResultMsg("fail", message);
         response.setContentType(MediaType.APPLICATION_JSON_VALUE);
         response.setStatus(HttpStatus.UNAUTHORIZED.value());
         makeResponseInFilter(response, error);

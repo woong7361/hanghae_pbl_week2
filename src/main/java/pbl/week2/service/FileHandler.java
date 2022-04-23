@@ -89,8 +89,7 @@ public class FileHandler {
             boolean wasSuccessful = file.mkdirs();
             // 디렉터리 생성에 실패했을 경우
             if (!wasSuccessful){
-                log.info("디렉토리 생성 실패");
-                throw new IllegalArgumentException(FILE_ERROR);
+                throw new PblException("디렉토리 생성 실패", FILE_ERROR);
             }
         }
     }
@@ -101,8 +100,7 @@ public class FileHandler {
 
         // 확장자명이 존재하지 않을 경우 처리 x
         if (ObjectUtils.isEmpty(contentType)) {
-            log.info("확장자명이 존재하지 않습니다");
-            throw new IllegalArgumentException(FILE_ERROR);
+            throw new PblException("확장자명이 존재하지 않습니다", FILE_ERROR);
         } else {  // 확장자가 jpeg, png인 파일들만 받아서 처리
             if (contentType.contains("image/jpeg"))
                 originalFileExtension = ".jpg";
@@ -110,7 +108,7 @@ public class FileHandler {
                 originalFileExtension = ".png";
             else { // 다른 확장자일 경우 처리 x
                 log.info("jpeg, png이외의 확장자가 들어왔습니다. {}", contentType);
-                throw new IllegalArgumentException(FILE_ERROR);
+                throw new PblException("jpeg, png이외의 확장자가 들어왔습니다.", FILE_ERROR);
             }
         }
         return originalFileExtension;
@@ -133,7 +131,7 @@ public class FileHandler {
         try {
             multipartFile.transferTo(file);
         } catch (IOException e) {
-            throw new IllegalArgumentException(FILE_ERROR);
+            throw new PblException("파일 저장 에러", FILE_ERROR);
         }
 
         // 파일 권한 설정(쓰기, 읽기)

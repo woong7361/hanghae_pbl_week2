@@ -25,12 +25,12 @@ public class BoardController {
      * Board 추가 API
      */
     @PostMapping("/posts")
-    public BoardDto.PostIdRes createBoard(
+    public BoardDto.PostRes createBoard(
             BoardDto.FileReq fileReq,
             @AuthenticationPrincipal PrincipalDetails principal) throws Exception {
 
-        Long boardId = boardService.createBoard(fileReq, principal.getMemberSession().getId());
-        return new BoardDto.PostIdRes(boardId);
+        return boardService.createBoard(fileReq, principal.getMemberSession().getId());
+
     }
 
     /**
@@ -62,12 +62,12 @@ public class BoardController {
      * Board 수정
      */
     @PatchMapping("/posts/{postId}")
-    public ResultMsg patchBoard(
+    public BoardDto.PostRes patchBoard(
             @PathVariable("postId") Long boardId,
             @AuthenticationPrincipal PrincipalDetails principalDetails,
             BoardDto.FileReq fileReq) {
-        boardService.patchBoard(boardId, principalDetails.getMemberSession().getId(), fileReq);
-        return new ResultMsg("success");
+        return boardService.patchBoard(boardId, principalDetails.getMemberSession().getId(), fileReq);
+
     }
 
     /**

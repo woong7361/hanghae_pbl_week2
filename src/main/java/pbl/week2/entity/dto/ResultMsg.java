@@ -9,4 +9,9 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class ResultMsg {
     private String msg;
+    private String log;
+
+    public ResultMsg(String msg){
+        this.msg = msg;
+    }
 }

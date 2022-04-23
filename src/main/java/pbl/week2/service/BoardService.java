@@ -43,7 +43,7 @@ public class BoardService {
      * create Board Service
      */
     @Transactional
-    public Long createBoard(BoardDto.FileReq createReq, Long userId){
+    public BoardDto.PostRes createBoard(BoardDto.FileReq createReq, Long userId){
         Member member = memberRepository.findById(userId)
                 .orElseThrow(() -> new PblException("not exist member", DEFAULT_ERROR));
 
@@ -59,50 +59,44 @@ public class BoardService {
             eventPublisher.publishEvent(new FileDeleteEvent(filePath));   //파일 업로드시 에러가 나면 파일 삭제 시도
             throw new PblException("파일 생성 에러 -> 롤백시도", DEFAULT_ERROR);               //db rollback
         }
-        return newBoard.getId();
+        return new BoardDto.PostRes(newBoard, fileHandler);
     }
 
+    /**
+     *  GET BOARD LIST
+     */
     public BoardDto.PostResList getBoardList(Long memberId, Pageable pageable) {
         Slice<Board> boards = boardRepository.findAllByOrderByLikeCountDesc(pageable);
         //내가 좋아요 누른 Board 아이디 리스트
-        List<Love> memberLoveList = loveRepository.findByMemberIdWithBoard(memberId);
-        List<Long> myLikeBoardId = memberLoveList.stream().map(l -> l.getBoard().getId()).collect(Collectors.toList());
+        List<Long> myLikeBoardId = getLikeList(memberId);
 
-        Slice<BoardDto.PostRes> postResList = boards.map(b ->
-                new BoardDto.PostRes(
-                        b.getMember().getNickname(),
-                        b.getContent(),
-                        fileHandler.getFileToByte(b.getPicture()),
-                        b.getLikeCount(),
-                        myLikeBoardId.stream().anyMatch(boardId -> boardId.equals(b.getId())),
-                        b.getModifiedAt()
-                ));
+        Slice<BoardDto.PostRes> postResList =
+                boards.map(board -> new BoardDto.PostRes(board, fileHandler, myLikeBoardId));
 
         return new BoardDto.PostResList(postResList);
 
     }
 
+    /**
+     *  GET BOARD ONE
+     */
     public BoardDto.PostRes getBoard(Long postId, Long memberId) {
         Optional<Board> board = boardRepository.findById(postId);
-        List<Love> memberLoveList = memberId != null ? loveRepository.findByMemberIdWithBoard(memberId) : new ArrayList<>();
-        Stream<Long> myLikeBoardId = memberLoveList.stream().map(l -> l.getBoard().getId());
+        List<Long> myLikeBoardId = getLikeList(memberId);
 
-        return board.map(b ->
-            new BoardDto.PostRes(
-                    b.getMember().getNickname(),
-                    b.getContent(),
-                    fileHandler.getFileToByte(b.getPicture()),
-                    b.getLikeCount(),
-                    myLikeBoardId.anyMatch(boardId -> boardId.equals(b.getId())),
-                    b.getModifiedAt()
-            )).orElseThrow(() -> new PblException("존재하지 않는 개시판입니다.", DEFAULT_ERROR));
+        return board.map(b -> new BoardDto.PostRes(b, fileHandler, myLikeBoardId))
+                .orElseThrow(() -> new PblException("존재하지 않는 개시판입니다.", DEFAULT_ERROR));
     }
 
+    /**
+     *  PATCH BOARD BY ID
+     */
     @Transactional
-    public void patchBoard(Long boardId, Long memberId, BoardDto.FileReq fileReq) {
+    public BoardDto.PostRes patchBoard(Long boardId, Long memberId, BoardDto.FileReq fileReq) {
         //자신의 보드가 맞는지 확인 후 수정
         Board board = boardRepository.findById(boardId).filter(b -> b.getMember().getId().equals(memberId))
                 .orElseThrow(() -> new PblException("게시판 주인이 아닙니다.", DEFAULT_ERROR));
+        List<Long> myLikeBoardId = getLikeList(memberId);
 
         byte[] backupImage = fileHandler.getFileToByte(board.getPicture());
         String backupPath = board.getPicture();
@@ -117,8 +111,14 @@ public class BoardService {
             eventPublisher.publishEvent(new FileDeleteEvent(filePath));                   //삭제
             throw new PblException("파일 저장 에러", FILE_ERROR);
         }
+
+        return new BoardDto.PostRes(board, fileHandler, myLikeBoardId);
     }
 
+
+    /**
+     *  REMOVE BOARD BY ID
+     */
     @Transactional
     public void removeBoard(Long boardId, Long memberId) {
         boardRepository.findById(boardId)
@@ -132,19 +132,13 @@ public class BoardService {
                 );
     }
 
-    public Slice<BoardDto.PostRes> getpaging(Pageable pageable) {
+    //==========================================================================================//
 
-        Slice<Board> board = boardRepository.findAllByOrderByLikeCountDesc(pageable);
 
-        Slice<BoardDto.PostRes> map = board.map(b ->
-                new BoardDto.PostRes(
-                        b.getMember().getNickname(),
-                        b.getContent(),
-                        fileHandler.getFileToByte(b.getPicture()),
-                        b.getLikeCount(),
-                        false,
-                        b.getModifiedAt()
-                ));
-        return map;
+    private List<Long> getLikeList(Long memberId) {
+        List<Love> memberLoveList = memberId != null ? loveRepository.findByMemberIdWithBoard(memberId) : new ArrayList<>();
+        List<Long> myLikeBoardId = memberLoveList.stream().map(l -> l.getBoard().getId()).collect(Collectors.toList());
+        return myLikeBoardId;
     }
+
 }

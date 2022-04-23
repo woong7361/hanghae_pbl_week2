@@ -34,7 +34,7 @@ public class ErrorControllerAdvice {
         log.info("error field = {}", e.getFieldError().getField());
 
         String message = messageSource.getMessage(DEFAULT_ERROR, null, null);
-        return new ResultMsg(message);
+        return new ResultMsg(message, e.toString());
     }
 
     @ExceptionHandler(IllegalArgumentException.class)
@@ -43,7 +43,7 @@ public class ErrorControllerAdvice {
         log.info("error = {}",e.toString());
 
         String message = messageSource.getMessage(DEFAULT_ERROR, null, null);
-        return new ResultMsg(message);
+        return new ResultMsg(message, e.toString());
     }
 
     @ExceptionHandler(Exception.class)
@@ -52,7 +52,7 @@ public class ErrorControllerAdvice {
         log.info("error = {}",e.toString());
 
         String message = messageSource.getMessage(DEFAULT_ERROR, null, null);
-        return new ResultMsg(message);
+        return new ResultMsg(message, e.toString());
     }
 
     @ExceptionHandler(PblException.class)
@@ -61,6 +61,6 @@ public class ErrorControllerAdvice {
         log.info(e.getErrorLog());
         String message = messageSource.getMessage(e.getErrorLog(), null, null);
 
-        return new ResultMsg(message);
+        return new ResultMsg(message, e.getErrorLog());
     }
 }

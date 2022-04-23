@@ -23,7 +23,6 @@ public class LoginController {
     @PostMapping("/api/register")
     public ResultMsg register(@RequestBody @Valid MemberDto.Register registerDto) {
         memberService.register(registerDto);
-        //MessageSoruce refactoring
 
         return new ResultMsg("success");
     }

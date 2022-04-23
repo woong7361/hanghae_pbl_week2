@@ -8,6 +8,7 @@ public class PblException extends RuntimeException{
     private String errorCode;
 
     public PblException(String errorLog, String errorCode) {
+        super(errorLog);
         this.errorLog = errorLog;
         this.errorCode = errorCode;
     }
