@@ -39,20 +39,4 @@ public class LoginController {
     }
 
 
-
-
-    /**
-     * Test API
-     */
-    @GetMapping("/test")
-    public String test(@AuthenticationPrincipal PrincipalDetails principalDetails) {
-        return "test";
-    }
-
-    @GetMapping("/api/test")
-    public String apiTest() {
-
-        return "apiTest";
-    }
-
 }

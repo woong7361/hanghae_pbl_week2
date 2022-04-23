@@ -52,7 +52,7 @@ public class WebSecureConfig extends WebSecurityConfigurerAdapter {
                 .addFilter(new JwtAuthorizationFilter(authenticationManager(), authenticationEntryPoint, memberRepository))
                 .authorizeRequests()
                 .antMatchers(HttpMethod.OPTIONS, "/api/*").permitAll() //option method 허락
-                .antMatchers("/api/posts").permitAll()
+                .antMatchers(HttpMethod.GET, "/api/posts").permitAll()
                 .antMatchers("/api/**").authenticated()
                 .anyRequest().permitAll();
 

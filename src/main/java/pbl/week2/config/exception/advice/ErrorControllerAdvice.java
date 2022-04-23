@@ -27,8 +27,8 @@ public class ErrorControllerAdvice {
     /**
      * @Valid 처리 ExceptionHandler
      */
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ExceptionHandler(MethodArgumentNotValidException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ResultMsg validtionException(MethodArgumentNotValidException e) {
         log.info("error message = {}",e.toString());
         log.info("error field = {}", e.getFieldError().getField());
@@ -37,8 +37,8 @@ public class ErrorControllerAdvice {
         return new ResultMsg(message);
     }
 
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ExceptionHandler(IllegalArgumentException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ResultMsg illegalArgumentException(IllegalArgumentException e) {
         log.info("error = {}",e.toString());
 
@@ -46,20 +46,21 @@ public class ErrorControllerAdvice {
         return new ResultMsg(message);
     }
 
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
-    @ExceptionHandler(PblException.class)
-    public ResultMsg PblException(PblException e) {
-        log.info(e.getErrorLog());
-        String message = messageSource.getMessage(e.getErrorLog(), null, null);
-
-        return new ResultMsg(message);
-    }
-
     @ExceptionHandler(Exception.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ResultMsg exception(Exception e) {
         log.info("error = {}",e.toString());
 
         String message = messageSource.getMessage(DEFAULT_ERROR, null, null);
+        return new ResultMsg(message);
+    }
+
+    @ExceptionHandler(PblException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ResultMsg PblException(PblException e) {
+        log.info(e.getErrorLog());
+        String message = messageSource.getMessage(e.getErrorLog(), null, null);
+
         return new ResultMsg(message);
     }
 }

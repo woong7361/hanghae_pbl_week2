@@ -29,14 +29,10 @@ public class testController {
     private final ApplicationEventPublisher eventPublisher;
     private final BoardService boardService;
 
-    //    @PostMapping("/multipart")
+    @PostMapping("/test")
     @ResponseBody
-    public void multipart(
-            @RequestPart(value = "file") MultipartFile file,
-            @RequestPart(value = "title") String title,
-            @RequestPart(value = "name") String name
-    ) {
-        return;
+    public void multipart(@RequestPart(value = "picture") MultipartFile file) {
+        System.out.println("file = " + file);
     }
 
 //    @GetMapping("/form")
