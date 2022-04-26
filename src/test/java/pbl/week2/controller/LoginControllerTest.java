@@ -44,19 +44,6 @@ class LoginControllerTest {
     @Nested
     @DisplayName("로그인 커트롤러 단위 테스트")
     class loginControllerTest {
-
-        @Test
-        public void successTest() throws Exception {
-            //given
-            MemberDto.Register registerDto = new MemberDto.Register("ugfdsg", "pwgfds", "nickname");
-
-            //when
-            //then
-            mockLoginReqeust(registerDto, status().isOk());
-
-            verify(memberService).register(registerDto);
-        }
-
         @Test
         @DisplayName("username 검증 테스트")
         public void usernameTest() throws Exception {
@@ -69,6 +56,17 @@ class LoginControllerTest {
             mockLoginReqeust(registerDto1, status().isBadRequest());
             mockLoginReqeust(registerDto2, status().isBadRequest());
             mockLoginReqeust(registerDto3, status().isBadRequest());
+        }
+        @Test
+        public void successTest() throws Exception {
+            //given
+            MemberDto.Register registerDto = new MemberDto.Register("ugfdsg", "pwgfds", "nickname");
+
+            //when
+            //then
+            mockLoginReqeust(registerDto, status().isOk());
+
+            verify(memberService).register(registerDto);
         }
 
 

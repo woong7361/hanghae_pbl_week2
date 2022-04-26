@@ -35,14 +35,9 @@ public class testController {
         System.out.println("file = " + file);
     }
 
-//    @GetMapping("/form")
-    public void form() {
-        Optional<String> abc = Optional.empty();
-        abc.orElseThrow(() -> {
-            System.out.println("abc = " + abc);
-            return new IllegalArgumentException(ErrorConstant.DEFAULT_ERROR);
-        });
-
+    @GetMapping("/form")
+    public String form() {
+        return "form.html";
     }
 
 //    @PostMapping("/multipart2")

@@ -30,7 +30,7 @@ public class LoveController {
     /**
      * 좋아요 삭제
      */
-    @DeleteMapping("/post/{postId}/like")
+    @PostMapping("/posts/{postId}/like/delete")
     public ResultMsg deleteLove(
             @PathVariable("postId") Long postId,
             @AuthenticationPrincipal PrincipalDetails principalDetails) {

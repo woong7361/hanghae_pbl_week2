@@ -28,6 +28,8 @@ public class BoardController {
     public BoardDto.PostRes createBoard(
             BoardDto.FileReq fileReq,
             @AuthenticationPrincipal PrincipalDetails principal) throws Exception {
+        System.out.println("fileReq.getPicture() = " + fileReq.getPicture());
+        System.out.println("fileReq = " + fileReq.getContent());
 
         return boardService.createBoard(fileReq, principal.getMemberSession().getId());
 
@@ -40,8 +42,7 @@ public class BoardController {
     @GetMapping(value = "/posts")
     public BoardDto.PostResList getBoardList(
             @AuthenticationPrincipal PrincipalDetails principalDetails,
-            Pageable pageable
-    ) {
+            Pageable pageable) {
         Long memberId = principalDetails != null ? principalDetails.getMemberSession().getId() : null;
         return boardService.getBoardList(memberId, pageable);
     }
@@ -73,7 +74,7 @@ public class BoardController {
     /**
      * Board 삭제
      */
-    @DeleteMapping("/posts/{postId}")
+    @PostMapping("/posts/{postId}/delete")
     public ResultMsg patchBoard(
             @PathVariable("postId") Long boardId,
             @AuthenticationPrincipal PrincipalDetails principalDetails

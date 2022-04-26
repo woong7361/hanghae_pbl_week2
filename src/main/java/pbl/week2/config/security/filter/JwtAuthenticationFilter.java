@@ -42,7 +42,7 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
 
     public JwtAuthenticationFilter(AuthenticationManager authenticationManager) {
         super.setAuthenticationManager(authenticationManager);
-        super.setFilterProcessesUrl("/api/login");
+//        super.setFilterProcessesUrl("/api/login");
     }
 
 

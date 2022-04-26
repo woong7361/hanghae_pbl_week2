@@ -59,7 +59,8 @@ public class BoardService {
             eventPublisher.publishEvent(new FileDeleteEvent(filePath));   //파일 업로드시 에러가 나면 파일 삭제 시도
             throw new PblException("파일 생성 에러 -> 롤백시도", DEFAULT_ERROR);               //db rollback
         }
-        return new BoardDto.PostRes(newBoard, fileHandler);
+        BoardDto.PostRes postRes = new BoardDto.PostRes(newBoard, fileHandler);
+        return postRes;
     }
 
     /**
